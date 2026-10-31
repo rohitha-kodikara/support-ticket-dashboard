@@ -12,6 +12,7 @@ const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const searchQuery = searchParams.get("search") || "";
+  const selectedStatusTab = searchParams.get("status") || "All";
 
   function updateSearchParams(key, value) {
     const params = new URLSearchParams(searchParams);
@@ -27,9 +28,17 @@ const Dashboard = () => {
   const filteredTickets = tickets.filter((ticket) => {
     const matchesSearchQuery =
       ticket.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.subject === searchQuery;
-    return matchesSearchQuery;
+      ticket.subject === searchQuery ||
+      ticket.assignee.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.assignee === searchQuery;
+
+    const matchesStatusTab =
+      selectedStatusTab === "All" || ticket.status === selectedStatusTab;
+
+    return matchesSearchQuery && matchesStatusTab;
   });
+
+  console.log(filteredTickets);
 
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-10">
@@ -45,7 +54,7 @@ const Dashboard = () => {
 
         {/* Status tabs */}
 
-        <StatusTabList />
+        <StatusTabList updateSearchParams={updateSearchParams} />
 
         {/* Category chips */}
         <CategoryChipsList />
