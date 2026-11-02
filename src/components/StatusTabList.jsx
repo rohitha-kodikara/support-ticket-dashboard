@@ -8,7 +8,11 @@ const statusTabs = [
   { name: "Resolved", count: 13 },
 ];
 
-const StatusTabList = ({ updateSearchParams }) => {
+const StatusTabList = ({
+  updateSearchParams,
+  selectedStatusTab,
+  statusCount,
+}) => {
   return (
     <nav className="mt-6 flex gap-6 overflow-x-auto border-b border-slate-200 text-sm">
       {statusTabs.map((tab) => (
@@ -16,6 +20,8 @@ const StatusTabList = ({ updateSearchParams }) => {
           key={tab.name}
           tab={tab}
           updateSearchParams={updateSearchParams}
+          isSelected={selectedStatusTab === tab.name}
+          statusCount={statusCount[tab.name]}
         />
       ))}
     </nav>

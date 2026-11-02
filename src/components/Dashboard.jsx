@@ -13,6 +13,9 @@ const Dashboard = () => {
 
   const searchQuery = searchParams.get("search") || "";
   const selectedStatusTab = searchParams.get("status") || "All";
+  const selectedCategory = searchParams.get("category") || "All";
+  const selectedPriority = searchParams.get("priority") || "All";
+  const selectedAssignee = searchParams.get("assignee") || "All";
 
   function updateSearchParams(key, value) {
     const params = new URLSearchParams(searchParams);
@@ -35,10 +38,42 @@ const Dashboard = () => {
     const matchesStatusTab =
       selectedStatusTab === "All" || ticket.status === selectedStatusTab;
 
-    return matchesSearchQuery && matchesStatusTab;
+    const matchesCategory =
+      selectedCategory === "All" || ticket.category === selectedCategory;
+
+    const matchesPriority =
+      selectedPriority.toLowerCase() === "all" ||
+      ticket.priority.toLowerCase() === selectedPriority.toLowerCase();
+
+    const matchesAssignee =
+      selectedAssignee.toLowerCase() === "all" ||
+      ticket.assignee.toLowerCase() === selectedAssignee.toLowerCase();
+
+    return (
+      matchesSearchQuery &&
+      matchesStatusTab &&
+      matchesCategory &&
+      matchesPriority &&
+      matchesAssignee
+    );
   });
 
-  console.log(filteredTickets);
+  const countsByStatus = tickets.reduce((acc, ticket) => {
+    acc[ticket.status] = (acc[ticket.status] || 0) + 1;
+    return acc;
+  }, {});
+
+  const statusCount = {
+    All: tickets.length,
+    ...countsByStatus,
+  };
+
+  const categories = ["All", "Billing", "Bug", "Account", "Feature request"];
+
+  const assignees = [
+    "All",
+    ...new Set(tickets.map((ticket) => ticket.assignee)),
+  ];
 
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-10">
@@ -50,14 +85,25 @@ const Dashboard = () => {
         <SearchAndDropdownFilters
           updateSearchParams={updateSearchParams}
           searchQuery={searchQuery}
+          selectedPriority={selectedPriority}
+          assignees={assignees}
+          selectedAssignee={selectedAssignee}
         />
 
         {/* Status tabs */}
 
-        <StatusTabList updateSearchParams={updateSearchParams} />
+        <StatusTabList
+          updateSearchParams={updateSearchParams}
+          selectedStatusTab={selectedStatusTab}
+          statusCount={statusCount}
+        />
 
         {/* Category chips */}
-        <CategoryChipsList />
+        <CategoryChipsList
+          categories={categories}
+          updateSearchParams={updateSearchParams}
+          selectedCategory={selectedCategory}
+        />
 
         {/* Results bar */}
         <ResultBar />
