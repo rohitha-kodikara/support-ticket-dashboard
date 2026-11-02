@@ -16,6 +16,7 @@ const Dashboard = () => {
   const selectedCategory = searchParams.get("category") || "All";
   const selectedPriority = searchParams.get("priority") || "All";
   const selectedAssignee = searchParams.get("assignee") || "All";
+  const currentPage = parseInt(searchParams.get("page")) || 1;
 
   function updateSearchParams(key, value) {
     const params = new URLSearchParams(searchParams);
@@ -75,6 +76,20 @@ const Dashboard = () => {
     ...new Set(tickets.map((ticket) => ticket.assignee)),
   ];
 
+  //pagination
+  const pageSize = 5;
+
+  const totalPages = Math.max(1, Math.ceil(filteredTickets.length / pageSize));
+
+  const safePage = Math.min(currentPage, totalPages);
+
+  const startIndex = (safePage - 1) * pageSize;
+
+  const paginatedTickets = filteredTickets.slice(
+    startIndex,
+    startIndex + pageSize,
+  );
+
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-10">
       <div className="mx-auto max-w-5xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -109,10 +124,14 @@ const Dashboard = () => {
         <ResultBar />
 
         {/* Table */}
-        <Table tickets={filteredTickets} />
+        <Table tickets={paginatedTickets} />
 
         {/* Footer: rows per page + pagination */}
-        <Footer />
+        <Footer
+          totalPages={totalPages}
+          currentPage={currentPage}
+          updateSearchParams={updateSearchParams}
+        />
       </div>
     </div>
   );
